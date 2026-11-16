@@ -9,7 +9,7 @@ export const Footer: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <footer className="bg-gray-900 text-gray-300 border-t border-gray-800">
+    <footer className="bg-white text-gray-600 border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           {/* Neolife Logo & Slogan */}
@@ -20,13 +20,13 @@ export const Footer: React.FC = () => {
               className="h-10 w-auto object-contain rounded"
             />
             <div>
-              <span className="text-lg font-bold text-white tracking-tight">
-                Neo<span className="text-emerald-400">life</span> {t.footer.region || 'Africa & Global'}
+              <span className="text-lg font-bold text-gray-900 tracking-tight">
+                Neo<span className="text-emerald-600">life</span> {t.footer.region || 'Africa & Global'}
               </span>
-              <p className="text-gray-400 text-xs mt-0.5">
+              <p className="text-gray-500 text-xs mt-0.5">
                 {t.footer.slogan}
               </p>
-              <p className="text-[10px] text-gray-500 font-medium tracking-wide uppercase mt-0.5">
+              <p className="text-[10px] text-gray-400 font-medium tracking-wide uppercase mt-0.5">
                 Ofélia & José Machado
               </p>
             </div>
@@ -40,9 +40,9 @@ export const Footer: React.FC = () => {
               href="https://wa.me/258823056900" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-emerald-950 text-gray-200 hover:text-emerald-300 border border-gray-700 transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 transition-colors"
             >
-              <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2z"/>
               </svg>
               <span>+258 82 305 6900</span>
@@ -52,10 +52,10 @@ export const Footer: React.FC = () => {
               href="https://www.facebook.com/profile.php?id=61581591080342&locale=pt_BR"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-blue-950 text-gray-200 hover:text-blue-300 border border-gray-700 transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-blue-50 text-gray-700 hover:text-blue-700 border border-gray-200 transition-colors"
               title="Página de Facebook Neolife"
             >
-              <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
               </svg>
               <span>Facebook</span>
@@ -63,44 +63,44 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="flex flex-wrap items-center gap-5 text-sm text-gray-400">
-            <Link href="/" className="hover:text-emerald-400 transition-colors">
+          <div className="flex flex-wrap items-center gap-5 text-sm text-gray-600">
+            <Link href="/" className="hover:text-emerald-600 transition-colors">
               {t.nav.home}
             </Link>
-            <Link href="/saude" className="hover:text-emerald-400 transition-colors">
+            <Link href="/saude" className="hover:text-emerald-600 transition-colors">
               {t.nav.health}
             </Link>
-            <Link href="/business" className="hover:text-emerald-400 transition-colors">
+            <Link href="/business" className="hover:text-emerald-600 transition-colors">
               {t.nav.business}
             </Link>
-            <Link href="/experiencias" className="hover:text-emerald-400 transition-colors">
+            <Link href="/experiencias" className="hover:text-emerald-600 transition-colors">
               {t.nav.experiences}
             </Link>
-            <Link href="/membro/login" className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
+            <Link href="/membro/login" className="text-emerald-700 hover:text-emerald-600 font-semibold transition-colors">
               {t.nav.membersArea}
             </Link>
           </div>
         </div>
 
         {/* Bottom Bar: Copyright & Powered by WeHostHere */}
-        <div className="mt-8 pt-6 border-t border-gray-800/80 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400">
+        <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
           <p>© {new Date().getFullYear()} Neolife África & Global · José Sarmento Machado & Ofélia Alfredo Machado. {t.footer.rights}</p>
           
           <a
             href="https://www.wehosthere.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+            className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors group"
             title="WeHostHere - Hospedagem e Soluções Cloud"
           >
             <span>Powered by</span>
-            <span className="font-semibold text-white group-hover:text-blue-400 transition-colors">
+            <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
               WeHostHere
             </span>
             <img
               src="/logo-wehosthere.png"
               alt="WeHostHere"
-              className="h-6 w-auto object-contain rounded-md bg-white p-0.5 shadow-sm"
+              className="h-6 w-auto object-contain rounded-md bg-white p-0.5 shadow-sm border border-gray-200"
             />
           </a>
         </div>

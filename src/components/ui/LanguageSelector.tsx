@@ -16,14 +16,14 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   if (variant === 'footer') {
     return (
-      <div className={`inline-flex items-center gap-1.5 p-1 rounded-xl bg-gray-800 border border-gray-700 ${className}`}>
+      <div className={`inline-flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 border border-gray-200 ${className}`}>
         <button
           type="button"
           onClick={() => setLanguage('pt')}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
             language === 'pt'
               ? 'bg-emerald-600 text-white shadow-sm'
-              : 'text-gray-400 hover:text-gray-200'
+              : 'text-gray-600 hover:text-gray-900'
           }`}
           aria-label="Mudar para Português"
         >
@@ -36,7 +36,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
             language === 'en'
               ? 'bg-emerald-600 text-white shadow-sm'
-              : 'text-gray-400 hover:text-gray-200'
+              : 'text-gray-600 hover:text-gray-900'
           }`}
           aria-label="Switch to English"
         >
