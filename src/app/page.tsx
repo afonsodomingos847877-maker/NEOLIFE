@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { DynamicBanner } from '@/components/ui/DynamicBanner';
 import { TypewriterText } from '@/components/ui/TypewriterText';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { saveGateData } from '@/lib/utils/gateUtils';
 import EventCard from '@/components/EventCard';
 
 interface PillarCardData {
@@ -24,6 +25,12 @@ export default function Home() {
   const { t, language } = useLanguage();
   const isPt = language === 'pt';
   const [cardImages, setCardImages] = useState<Record<string, string>>(DEFAULT_IMAGES);
+  const [quickName, setQuickName] = useState('');
+  const [quickPhone, setQuickPhone] = useState('');
+  const [quickInterest, setQuickInterest] = useState<'saude' | 'business' | 'ambos'>('ambos');
+  const [quickSubmitting, setQuickSubmitting] = useState(false);
+  const [quickSuccess, setQuickSuccess] = useState(false);
+  const [quickError, setQuickError] = useState('');
 
   useEffect(() => {
     fetch('/api/pillar-cards')
@@ -37,6 +44,71 @@ export default function Home() {
       })
       .catch(() => {/* use defaults */});
   }, []);
+
+  const handleQuickLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setQuickError('');
+    const trimmedName = quickName.trim();
+    const trimmedPhone = quickPhone.trim();
+
+    if (!trimmedName || !trimmedPhone) {
+      setQuickError(isPt ? 'Por favor, preencha o seu nome e WhatsApp.' : 'Please enter your name and WhatsApp.');
+      return;
+    }
+
+    const themeMap: Record<'saude' | 'business' | 'ambos', string> = {
+      saude: 'saude',
+      business: 'business',
+      ambos: 'conheca-neolife',
+    };
+
+    const interestLabel =
+      quickInterest === 'saude'
+        ? (isPt ? 'Saúde & Nutrição' : 'Health & Nutrition')
+        : quickInterest === 'business'
+        ? (isPt ? 'Negócio / Empreendedorismo' : 'Business / Entrepreneurship')
+        : (isPt ? 'Saúde, Negócio & Experiências' : 'Health, Business & Experiences');
+
+    setQuickSubmitting(true);
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          country: 'mz-pt',
+          name: trimmedName,
+          phone: trimmedPhone,
+          whatsapp: trimmedPhone,
+          theme: themeMap[quickInterest],
+          source: 'home-quick-lead',
+          notes: `Interesse rápido na Home: ${interestLabel}`,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || (isPt ? 'Não foi possível enviar. Tente novamente.' : 'Could not submit. Please try again.'));
+      }
+
+      saveGateData({ name: trimmedName, phone: trimmedPhone, country: 'mz-pt' });
+      setQuickSuccess(true);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : (isPt ? 'Erro ao enviar.' : 'Submission error.');
+      setQuickError(msg);
+    } finally {
+      setQuickSubmitting(false);
+    }
+  };
+
+  const quickWhatsappMessage = encodeURIComponent(
+    isPt
+      ? `Olá! Chamo-me ${quickName || 'visitante'} e tenho interesse em ${
+          quickInterest === 'saude' ? 'Saúde & Nutrição' : quickInterest === 'business' ? 'Negócio NeoLife' : 'Saúde e Negócio NeoLife'
+        }. Gostaria de receber aconselhamento.`
+      : `Hello! My name is ${quickName || 'visitor'} and I'm interested in ${
+          quickInterest === 'saude' ? 'Health & Nutrition' : quickInterest === 'business' ? 'NeoLife Business' : 'NeoLife Health & Business'
+        }. I would like personalized guidance.`
+  );
 
   return (
     <div className="min-h-screen bg-[#02150f] text-white selection:bg-emerald-400 selection:text-emerald-950">
@@ -127,7 +199,7 @@ export default function Home() {
                   {isPt ? 'Pilar 01' : 'Pillar 01'}
                 </div>
                 <h3 className="text-2xl font-extrabold text-white mb-3 group-hover:text-emerald-300 transition-colors">
-                  {isPt ? '1. SAÚDE' : '1. HEALTH'}
+                  <TypewriterText text={isPt ? '1. SAÚDE' : '1. HEALTH'} speed={60} />
                 </h3>
                 <blockquote className="text-emerald-100/80 text-sm sm:text-base leading-relaxed mb-6 italic border-l-2 border-emerald-400/70 pl-3.5 flex-1">
                   {isPt
@@ -175,7 +247,7 @@ export default function Home() {
                   {isPt ? 'Pilar 02' : 'Pillar 02'}
                 </div>
                 <h3 className="text-2xl font-extrabold text-gray-900 mb-3 group-hover:text-emerald-700 transition-colors">
-                  2. BUSINESS
+                  <TypewriterText text="2. BUSINESS" speed={60} />
                 </h3>
                 <blockquote className="text-gray-600 text-sm sm:text-base leading-relaxed mb-6 italic border-l-2 border-emerald-500 pl-3.5 flex-1">
                   {isPt
@@ -222,7 +294,7 @@ export default function Home() {
                   {isPt ? 'Pilar 03' : 'Pillar 03'}
                 </div>
                 <h3 className="text-2xl font-extrabold text-white mb-3 group-hover:text-teal-300 transition-colors">
-                  {isPt ? '3. EXPERIÊNCIAS' : '3. EXPERIENCES'}
+                  <TypewriterText text={isPt ? '3. EXPERIÊNCIAS' : '3. EXPERIENCES'} speed={60} />
                 </h3>
                 <blockquote className="text-teal-100/80 text-sm sm:text-base leading-relaxed mb-6 italic border-l-2 border-teal-400/70 pl-3.5 flex-1">
                   {isPt
@@ -244,31 +316,199 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── FINAL CTA SECTION (INVERTED LIGHT SURFACE ON DARK CANVAS) ── */}
+      {/* ── TRUST & AUTHORITY STRIP ── */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 border-t border-emerald-900/50 bg-[#02150f]">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="rounded-2xl bg-emerald-950/60 border border-emerald-500/20 p-6 flex items-start gap-4">
+            <div className="w-11 h-11 rounded-xl bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0 font-black text-sm">
+              1958
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-white uppercase tracking-wide">
+                {isPt ? 'Ciência NeoLife desde 1958' : 'NeoLife Science Since 1958'}
+              </h3>
+              <p className="text-xs text-emerald-100/70 mt-1 leading-relaxed">
+                {isPt
+                  ? 'Mais de 65 anos de nutrição celular com base científica e padrão internacional.'
+                  : 'Over 65 years of science-backed cellular nutrition and global quality.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-emerald-950/60 border border-emerald-500/20 p-6 flex items-start gap-4">
+            <div className="w-11 h-11 rounded-xl bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-white uppercase tracking-wide">
+                {isPt ? 'Mentoria Direta' : 'Direct Mentorship'}
+              </h3>
+              <p className="text-xs text-emerald-100/70 mt-1 leading-relaxed">
+                {isPt
+                  ? 'Acompanhamento próximo de José Sarmento Machado & Ofélia Alfredo Machado.'
+                  : 'Close guidance from José Sarmento Machado & Ofélia Alfredo Machado.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-emerald-950/60 border border-emerald-500/20 p-6 flex items-start gap-4">
+            <div className="w-11 h-11 rounded-xl bg-teal-400/15 border border-teal-400/30 flex items-center justify-center text-teal-300 shrink-0">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-white uppercase tracking-wide">
+                {isPt ? 'Moçambique & Global' : 'Mozambique & Global'}
+              </h3>
+              <p className="text-xs text-emerald-100/70 mt-1 leading-relaxed">
+                {isPt
+                  ? 'Atendimento rápido via WhatsApp e acesso a oportunidades em mais de 50 países.'
+                  : 'Fast WhatsApp support and access to opportunities in over 50 countries.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FINAL CTA SECTION (QUICK LEAD CAPTURE ON LIGHT SURFACE) ── */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-t border-emerald-900/60 bg-gradient-to-b from-[#02150f] to-[#010d09]">
-        <div className="max-w-5xl mx-auto rounded-3xl bg-gradient-to-br from-white via-emerald-50 to-teal-50 text-gray-900 p-8 sm:p-12 md:p-16 shadow-[0_25px_70px_-15px_rgba(16,185,129,0.25)] border border-emerald-200/80 text-center relative overflow-hidden">
+        <div className="max-w-4xl mx-auto rounded-3xl bg-gradient-to-br from-white via-emerald-50 to-teal-50 text-gray-900 p-8 sm:p-12 md:p-14 shadow-[0_25px_70px_-15px_rgba(16,185,129,0.25)] border border-emerald-200/80 text-center relative overflow-hidden">
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-300/30 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-teal-300/30 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-emerald-950 mb-5">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-emerald-950 mb-4">
               <TypewriterText text={t.cta.readyTitle} speed={40} />
             </h2>
-            <p className="text-lg text-gray-600 mb-9 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
               {t.cta.readyText}
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a href="https://wa.me/258823056900" target="_blank" rel="noopener noreferrer">
-                <Button size="lg" className="bg-emerald-950 hover:bg-emerald-900 text-white font-bold px-8 shadow-lg">
-                  {t.cta.startNow}
-                </Button>
-              </a>
-              <Link href="/formulario?tema=conheca-neolife&pais=mz-pt">
-                <Button size="lg" variant="outline" className="border-emerald-700 text-emerald-900 hover:bg-emerald-100 font-bold px-8">
-                  {t.cta.fillForm}
-                </Button>
-              </Link>
-            </div>
+
+            {quickSuccess ? (
+              <div className="max-w-lg mx-auto bg-white rounded-2xl p-6 sm:p-8 border border-emerald-200 shadow-lg text-center">
+                <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-extrabold text-emerald-950 mb-2">
+                  {isPt ? 'Contacto Registado com Sucesso!' : 'Contact Registered Successfully!'}
+                </h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  {isPt
+                    ? 'A nossa equipa recebeu o seu pedido e o acesso aos pilares foi desbloqueado. Clique abaixo para falar agora no WhatsApp:'
+                    : 'Our team received your request and pillar access is unlocked. Click below to chat now on WhatsApp:'}
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <a
+                    href={`https://wa.me/258823056900?text=${quickWhatsappMessage}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto"
+                  >
+                    <Button size="lg" className="w-full bg-emerald-950 hover:bg-emerald-900 text-white font-bold px-8 shadow-lg">
+                      {isPt ? 'Abrir no WhatsApp ➔' : 'Open on WhatsApp ➔'}
+                    </Button>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuickSuccess(false);
+                      setQuickName('');
+                      setQuickPhone('');
+                    }}
+                    className="text-xs font-semibold text-emerald-800 hover:underline px-3 py-2 cursor-pointer"
+                  >
+                    {isPt ? 'Enviar outro contacto' : 'Send another contact'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleQuickLeadSubmit} className="max-w-2xl mx-auto bg-white/90 backdrop-blur-sm rounded-2xl p-5 sm:p-7 border border-emerald-200/80 shadow-md text-left">
+                {/* Interest selector */}
+                <div className="mb-4">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-emerald-900 mb-2">
+                    {isPt ? 'Qual é o seu principal interesse?' : 'What is your main interest?'}
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'saude' as const, label: isPt ? 'Saúde' : 'Health' },
+                      { id: 'business' as const, label: 'Business' },
+                      { id: 'ambos' as const, label: isPt ? 'Ambos' : 'Both' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setQuickInterest(opt.id)}
+                        className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold border transition-all cursor-pointer ${
+                          quickInterest === opt.id
+                            ? 'bg-emerald-950 text-white border-emerald-950 shadow-sm'
+                            : 'bg-emerald-50/70 text-emerald-900 border-emerald-200 hover:bg-emerald-100'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Name & WhatsApp */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">
+                      {isPt ? 'Seu Nome' : 'Your Name'}
+                    </label>
+                    <input
+                      type="text"
+                      value={quickName}
+                      onChange={(e) => setQuickName(e.target.value)}
+                      placeholder={isPt ? 'Ex: Maria Silva' : 'Ex: John Doe'}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">
+                      WhatsApp
+                    </label>
+                    <input
+                      type="tel"
+                      value={quickPhone}
+                      onChange={(e) => setQuickPhone(e.target.value)}
+                      placeholder="+258 84 000 0000"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {quickError && (
+                  <p className="text-xs font-semibold text-red-600 mb-3">{quickError}</p>
+                )}
+
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={quickSubmitting}
+                    className="w-full sm:flex-1 bg-emerald-950 hover:bg-emerald-900 text-white font-bold px-6 shadow-lg disabled:opacity-60"
+                  >
+                    {quickSubmitting
+                      ? (isPt ? 'A enviar...' : 'Sending...')
+                      : (isPt ? 'Receber Atendimento Rápido ➔' : 'Get Quick Guidance ➔')}
+                  </Button>
+                  <Link href="/formulario?tema=conheca-neolife&pais=mz-pt" className="w-full sm:w-auto">
+                    <Button type="button" size="lg" variant="outline" className="w-full border-emerald-700 text-emerald-900 hover:bg-emerald-100 font-bold px-5">
+                      {t.cta.fillForm}
+                    </Button>
+                  </Link>
+                </div>
+              </form>
+            )}
+
             <p className="mt-6 text-xs text-gray-500 font-mono">
               {t.cta.directContact}
             </p>

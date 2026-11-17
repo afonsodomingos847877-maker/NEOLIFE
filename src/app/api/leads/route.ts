@@ -14,14 +14,22 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     // For ai-copilot source, phone and email are optional
+    // For home-quick-lead source, phone is required and email is optional
     const isAiCopilot = source === 'ai-copilot';
+    const isQuickLead = source === 'home-quick-lead';
     if (!country || !name || !theme) {
       return NextResponse.json(
         { error: 'Campos obrigatórios: país, nome e tema' },
         { status: 400 }
       );
     }
-    if (!isAiCopilot && (!phone || !email)) {
+    if (isQuickLead && !phone) {
+      return NextResponse.json(
+        { error: 'Campo obrigatório: WhatsApp / telefone' },
+        { status: 400 }
+      );
+    }
+    if (!isAiCopilot && !isQuickLead && (!phone || !email)) {
       return NextResponse.json(
         { error: 'Campos obrigatórios: telefone e email' },
         { status: 400 }
@@ -87,17 +95,19 @@ export async function POST(request: NextRequest) {
       const matchedTheme = dbTheme || staticTheme;
       const matchedCountry = getCountryById(country);
 
-      // Automated email to lead with video link
-      console.log('[LEADS API] Sending confirmation email to lead:', email);
-      await sendLeadConfirmationEmail({
-        name,
-        email,
-        countryName: matchedCountry?.name || country,
-        themeTitle: matchedTheme?.title || theme,
-        themeSlug: matchedTheme?.slug || theme,
-        videoUrl: matchedTheme?.videoUrl,
-      });
-      console.log('[LEADS API] Lead confirmation email sent');
+      // Automated email to lead with video link (only when email is provided)
+      if (email) {
+        console.log('[LEADS API] Sending confirmation email to lead:', email);
+        await sendLeadConfirmationEmail({
+          name,
+          email,
+          countryName: matchedCountry?.name || country,
+          themeTitle: matchedTheme?.title || theme,
+          themeSlug: matchedTheme?.slug || theme,
+          videoUrl: matchedTheme?.videoUrl,
+        });
+        console.log('[LEADS API] Lead confirmation email sent');
+      }
 
       // Automated notification to site administrator
       console.log('[LEADS API] Sending admin notification');

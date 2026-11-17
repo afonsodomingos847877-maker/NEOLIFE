@@ -143,6 +143,29 @@ export function getGateRemainingDays(): number {
 }
 
 /**
+ * Save gate completion data to localStorage
+ */
+export function saveGateData(data: {
+  name: string;
+  phone: string;
+  email?: string;
+  country?: string;
+}): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.setItem(GATE_STORAGE_KEY, 'true');
+    localStorage.setItem(GATE_TIMESTAMP_KEY, Date.now().toString());
+    localStorage.setItem(GATE_EMAIL_KEY, data.email || '');
+    localStorage.setItem(GATE_NAME_KEY, data.name);
+    localStorage.setItem(GATE_PHONE_KEY, data.phone);
+    localStorage.setItem(GATE_COUNTRY_KEY, data.country || 'mz-pt');
+  } catch (error) {
+    console.error('Error saving gate data:', error);
+  }
+}
+
+/**
  * Force gate to be completed (for testing purposes)
  */
 export function forceGateComplete(): void {

@@ -8,6 +8,7 @@ import { VideoSection } from '@/components/ui/VideoSection';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useSelection } from '@/lib/context/SelectionContext';
 import { Button } from '@/components/ui/Button';
+import { TypewriterText } from '@/components/ui/TypewriterText';
 import { requireGate } from '@/lib/utils/gateUtils';
 
 export default function BusinessPage() {
@@ -44,11 +45,14 @@ export default function BusinessPage() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight max-w-4xl mx-auto drop-shadow-md">
-            {isPt ? (
-              <>Construa um Negócio Próprio com <span className="text-emerald-400">Liberdade & Apoio Real</span></>
-            ) : (
-              <>Build Your Own Business with <span className="text-emerald-400">Freedom & True Support</span></>
-            )}
+            <TypewriterText
+              text={
+                isPt
+                  ? 'Construa um Negócio Próprio com Liberdade & Apoio Real'
+                  : 'Build Your Own Business with Freedom & True Support'
+              }
+              speed={40}
+            />
           </h1>
 
           <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed mb-8 drop-shadow">
@@ -98,11 +102,10 @@ export default function BusinessPage() {
 
           {/* Heading */}
           <h2 className="text-3xl sm:text-5xl font-black text-white mb-4 leading-tight">
-            {isPt ? (
-              <>Queres juntar-te à <span className="text-emerald-400">NeoLife</span>?</>
-            ) : (
-              <>Want to join <span className="text-emerald-400">NeoLife</span>?</>
-            )}
+            <TypewriterText
+              text={isPt ? 'Queres juntar-te à NeoLife?' : 'Want to join NeoLife?'}
+              speed={45}
+            />
           </h2>
 
           <p className="text-lg text-gray-300 mb-10 leading-relaxed max-w-xl mx-auto">

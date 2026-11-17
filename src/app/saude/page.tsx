@@ -7,6 +7,7 @@ import { NeoLifeScienceSection } from '@/components/sections/NeoLifeScienceSecti
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useSelection } from '@/lib/context/SelectionContext';
 import { Button } from '@/components/ui/Button';
+import { TypewriterText } from '@/components/ui/TypewriterText';
 import { requireGate } from '@/lib/utils/gateUtils';
 
 export default function SaudePage() {
@@ -43,11 +44,14 @@ export default function SaudePage() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight max-w-4xl mx-auto drop-shadow-md">
-            {isPt ? (
-              <>Nutrição Superior & Soluções Naturais para a <span className="text-emerald-400">Sua Família</span></>
-            ) : (
-              <>Superior Nutrition & Natural Solutions for <span className="text-emerald-400">Your Family</span></>
-            )}
+            <TypewriterText
+              text={
+                isPt
+                  ? 'Nutrição Superior & Soluções Naturais para a Sua Família'
+                  : 'Superior Nutrition & Natural Solutions for Your Family'
+              }
+              speed={40}
+            />
           </h1>
 
           <p className="text-lg md:text-xl text-emerald-100/90 max-w-3xl mx-auto leading-relaxed mb-8 drop-shadow">
@@ -91,7 +95,14 @@ export default function SaudePage() {
                 {isPt ? 'Próximo Pilar • Empreendedorismo' : 'Next Pillar • Entrepreneurship'}
               </span>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-white mt-1 mb-3">
-                {isPt ? 'Deseja também Conhecer a Oportunidade de Negócio?' : 'Want to Explore the Business Opportunity as well?'}
+                <TypewriterText
+                  text={
+                    isPt
+                      ? 'Deseja também Conhecer a Oportunidade de Negócio?'
+                      : 'Want to Explore the Business Opportunity as well?'
+                  }
+                  speed={40}
+                />
               </h3>
               <p className="text-sm sm:text-base text-emerald-100 max-w-xl leading-relaxed">
                 {isPt

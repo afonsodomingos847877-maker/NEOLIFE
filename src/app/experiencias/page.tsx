@@ -7,6 +7,7 @@ import { VideoSection } from '@/components/ui/VideoSection';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useSelection } from '@/lib/context/SelectionContext';
 import { Button } from '@/components/ui/Button';
+import { TypewriterText } from '@/components/ui/TypewriterText';
 import { requireGate } from '@/lib/utils/gateUtils';
 
 export default function ExperienciasPage() {
@@ -43,11 +44,14 @@ export default function ExperienciasPage() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight max-w-4xl mx-auto drop-shadow-md">
-            {isPt ? (
-              <>Viva Experiências Exclusivas & <span className="text-teal-400">Reconhecimento Global</span></>
-            ) : (
-              <>Live Exclusive Experiences & <span className="text-teal-400">Global Recognition</span></>
-            )}
+            <TypewriterText
+              text={
+                isPt
+                  ? 'Viva Experiências Exclusivas & Reconhecimento Global'
+                  : 'Live Exclusive Experiences & Global Recognition'
+              }
+              speed={40}
+            />
           </h1>
 
           <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed mb-8 drop-shadow">
@@ -84,7 +88,10 @@ export default function ExperienciasPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {isPt ? 'Pacote de Incentivos da NeoLife' : 'NeoLife Incentives Package'}
+              <TypewriterText
+                text={isPt ? 'Pacote de Incentivos da NeoLife' : 'NeoLife Incentives Package'}
+                speed={45}
+              />
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               {isPt
