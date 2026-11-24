@@ -2,14 +2,20 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useSelection } from '@/lib/context/SelectionContext';
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
 
 export const Header: React.FC = () => {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
   const { totalItemsCount } = useSelection();
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <header className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">

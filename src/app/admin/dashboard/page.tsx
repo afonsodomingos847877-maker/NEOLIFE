@@ -19,6 +19,8 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
+  const [newLeadsAlert, setNewLeadsAlert] = useState<any[]>([]);
+  const [showNewLeadsAlert, setShowNewLeadsAlert] = useState(false);
   const [loadingLeads, setLoadingLeads] = useState(true);
   const [activities, setActivities] = useState<any[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
@@ -50,7 +52,17 @@ export default function AdminDashboard() {
       const response = await fetch('/api/admin/leads');
       if (response.ok) {
         const data = await response.json();
-        setRecentLeads(Array.isArray(data) ? data.slice(0, 5) : []);
+        const list = Array.isArray(data) ? data : [];
+        setRecentLeads(list.slice(0, 5));
+
+        const uncontactedNew = list.filter((l: any) => l.status === 'novo');
+        if (uncontactedNew.length > 0) {
+          setNewLeadsAlert(uncontactedNew);
+          setShowNewLeadsAlert(true);
+        } else {
+          setNewLeadsAlert([]);
+          setShowNewLeadsAlert(false);
+        }
       }
     } catch (error) {
       console.error('Error loading recent leads:', error);
@@ -171,6 +183,81 @@ export default function AdminDashboard() {
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* New Leads Alert Notification Banner */}
+        {showNewLeadsAlert && newLeadsAlert.length > 0 && (
+          <div className="rounded-2xl bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-900 text-white p-5 shadow-lg border border-emerald-500/40">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-400 text-emerald-950 flex items-center justify-center shrink-0 shadow-sm animate-pulse">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-extrabold text-white">
+                    {newLeadsAlert.length === 1
+                      ? '1 novo lead capturado aguardando contacto!'
+                      : `${newLeadsAlert.length} novos leads capturados aguardando contacto!`}
+                  </h3>
+                  <p className="text-xs text-emerald-200">
+                    Contactos recentes com estado &quot;Novo&quot; prontos para atendimento.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                <Link
+                  href="/admin/leads"
+                  className="px-4 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-emerald-950 text-xs font-extrabold transition-colors shadow-sm"
+                >
+                  Ver Todos os Leads ➔
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowNewLeadsAlert(false)}
+                  className="p-2 rounded-lg text-emerald-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                  aria-label="Fechar notificação"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {newLeadsAlert.slice(0, 3).map((lead: any) => {
+                const phoneClean = (lead.whatsapp || lead.phone || '').replace(/[^\d]/g, '');
+                return (
+                  <div
+                    key={lead._id}
+                    className="rounded-xl bg-white/10 backdrop-blur-sm border border-white/15 p-3 flex items-center justify-between gap-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{lead.name}</p>
+                      <p className="text-xs text-emerald-200 truncate">
+                        {lead.whatsapp || lead.phone || lead.email || 'Sem contacto'}
+                      </p>
+                      <p className="text-[11px] text-emerald-300/80 truncate">
+                        {lead.theme || 'Geral'} · {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('pt-PT') : 'Recente'}
+                      </p>
+                    </div>
+                    {phoneClean && (
+                      <a
+                        href={`https://wa.me/${phoneClean}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-emerald-950 text-[11px] font-extrabold shrink-0 transition-colors"
+                      >
+                        WhatsApp
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           {/* Total de Leads */}
