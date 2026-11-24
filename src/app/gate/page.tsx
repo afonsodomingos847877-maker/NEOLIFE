@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
 import { getCountryById, getAllowedDialCodes, countries } from '@/data/countries';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { saveGateData } from '@/lib/utils/gateUtils';
 import { Country } from '@/types';
 
 function GateContent() {
@@ -233,15 +234,12 @@ function GateContent() {
       });
 
       if (response.ok) {
-        // Save gate completion to localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('neolife_gate_completed', 'true');
-          localStorage.setItem('neolife_gate_timestamp', Date.now().toString());
-          localStorage.setItem('neolife_gate_email', formData.email);
-          localStorage.setItem('neolife_gate_name', formData.name);
-          localStorage.setItem('neolife_gate_phone', formData.phone);
-          localStorage.setItem('neolife_gate_country', selectedCountryId);
-        }
+        saveGateData({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          country: selectedCountryId,
+        });
 
         setSubmitSuccess(true);
         

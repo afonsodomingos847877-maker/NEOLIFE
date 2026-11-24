@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
-import { requireGate } from '@/lib/utils/gateUtils';
+import { isGateValid, requireGate } from '@/lib/utils/gateUtils';
 
 function IntroContent() {
   const searchParams = useSearchParams();
@@ -15,11 +15,24 @@ function IntroContent() {
   const isPt = language === 'pt';
 
   const [videoWatched, setVideoWatched] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   // Gate verification - redirect to gate if not completed
   useEffect(() => {
-    requireGate(pillar, redirectTo);
+    if (!isGateValid()) {
+      requireGate(pillar, redirectTo);
+      return;
+    }
+    setIsAuthorized(true);
   }, [pillar, redirectTo]);
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-[#02150f] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-400" />
+      </div>
+    );
+  }
 
   // Video URLs by pillar and language
   const videoUrls = {

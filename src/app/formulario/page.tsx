@@ -8,6 +8,7 @@ import { getCountryById, getAllowedDialCodes, countries } from '@/data/countries
 import { getThemeBySlug } from '@/data/themes';
 import { useSelection } from '@/lib/context/SelectionContext';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { saveGateData } from '@/lib/utils/gateUtils';
 import Link from 'next/link';
 import { Country } from '@/types';
 
@@ -169,6 +170,12 @@ function FormularioContent() {
         }),
       });
       if (res.ok) {
+        saveGateData({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          country: selectedCountryId,
+        });
         clearAllSelections();
         setSubmitSuccess(true);
         setTimeout(() => { window.location.href = '/confirmacao'; }, 1200);

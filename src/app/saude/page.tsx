@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { HealthSection } from '@/components/sections/HealthSection';
 import { NeoLifeScienceSection } from '@/components/sections/NeoLifeScienceSection';
@@ -8,17 +8,30 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useSelection } from '@/lib/context/SelectionContext';
 import { Button } from '@/components/ui/Button';
 import { TypewriterText } from '@/components/ui/TypewriterText';
-import { requireGate } from '@/lib/utils/gateUtils';
+import { isGateValid, requireGate } from '@/lib/utils/gateUtils';
 
 export default function SaudePage() {
   const { language } = useLanguage();
   const isPt = language === 'pt';
   const { totalItemsCount, selectedHealthPacks } = useSelection();
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   // Gate verification
   useEffect(() => {
-    requireGate('saude', '/saude');
+    if (!isGateValid()) {
+      requireGate('saude', '/saude');
+      return;
+    }
+    setIsAuthorized(true);
   }, []);
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-[#02150f] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-400" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

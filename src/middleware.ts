@@ -14,6 +14,29 @@ export function middleware(request: NextRequest) {
 
   const adminSession = request.cookies.get('admin_session');
   const memberSession = request.cookies.get('member_session');
+  const gateVerified = request.cookies.get('neolife_gate_verified');
+
+  // ── Lead Gate for Protected Information Pages ─────────────────
+  const protectedPillarPaths: Array<{ prefix: string; pillar: string }> = [
+    { prefix: '/saude', pillar: 'saude' },
+    { prefix: '/business', pillar: 'business' },
+    { prefix: '/experiencias', pillar: 'experiencias' },
+    { prefix: '/oportunidade', pillar: 'business' },
+    { prefix: '/intro', pillar: request.nextUrl.searchParams.get('pillar') || 'saude' },
+  ];
+
+  const matchedProtected = protectedPillarPaths.find(
+    ({ prefix }) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+
+  if (matchedProtected && gateVerified?.value !== '1') {
+    const gateUrl = request.nextUrl.clone();
+    gateUrl.pathname = '/gate';
+    gateUrl.search = '';
+    gateUrl.searchParams.set('pillar', matchedProtected.pillar);
+    gateUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(gateUrl);
+  }
 
   const isDevelopment = process.env.NODE_ENV === 'development';
   const isAdminAuth = adminSession?.value === 'authenticated' || isDevelopment;
@@ -73,5 +96,19 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin', '/admin/:path*', '/membro/:path*'],
+  matcher: [
+    '/admin',
+    '/admin/:path*',
+    '/membro/:path*',
+    '/saude',
+    '/saude/:path*',
+    '/business',
+    '/business/:path*',
+    '/experiencias',
+    '/experiencias/:path*',
+    '/oportunidade',
+    '/oportunidade/:path*',
+    '/intro',
+    '/intro/:path*',
+  ],
 };

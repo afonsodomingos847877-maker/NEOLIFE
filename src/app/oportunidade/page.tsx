@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { isGateValid, requireGate } from '@/lib/utils/gateUtils';
 
 const faqsPt = [
   {
@@ -63,7 +64,24 @@ export default function OportunidadePage() {
   const { language } = useLanguage();
   const isPt = language === 'pt';
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const faqs = isPt ? faqsPt : faqsEn;
+
+  useEffect(() => {
+    if (!isGateValid()) {
+      requireGate('business', '/oportunidade');
+      return;
+    }
+    setIsAuthorized(true);
+  }, []);
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-[#02150f] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-400" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

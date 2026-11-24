@@ -18,10 +18,29 @@ const GATE_EMAIL_KEY = 'neolife_gate_email';
 const GATE_NAME_KEY = 'neolife_gate_name';
 const GATE_PHONE_KEY = 'neolife_gate_phone';
 const GATE_COUNTRY_KEY = 'neolife_gate_country';
+const GATE_COOKIE_NAME = 'neolife_gate_verified';
 
 // Gate expires after 30 days (in milliseconds)
 const GATE_EXPIRY_DAYS = 30;
 const GATE_EXPIRY_MS = GATE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+const GATE_COOKIE_MAX_AGE = GATE_EXPIRY_DAYS * 24 * 60 * 60;
+
+function hasGateCookie(): boolean {
+  if (typeof document === 'undefined') return false;
+  return document.cookie
+    .split(';')
+    .some((c) => c.trim() === `${GATE_COOKIE_NAME}=1`);
+}
+
+function setGateCookie(): void {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${GATE_COOKIE_NAME}=1; path=/; max-age=${GATE_COOKIE_MAX_AGE}; SameSite=Lax`;
+}
+
+function clearGateCookie(): void {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${GATE_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
+}
 
 /**
  * Check if the user has completed the gate and it's still valid
@@ -33,7 +52,7 @@ export function isGateValid(): boolean {
     const completed = localStorage.getItem(GATE_STORAGE_KEY);
     const timestamp = localStorage.getItem(GATE_TIMESTAMP_KEY);
 
-    if (!completed || completed !== 'true' || !timestamp) {
+    if (!completed || completed !== 'true' || !timestamp || !hasGateCookie()) {
       return false;
     }
 
@@ -108,6 +127,7 @@ export function clearGateData(): void {
     localStorage.removeItem(GATE_NAME_KEY);
     localStorage.removeItem(GATE_PHONE_KEY);
     localStorage.removeItem(GATE_COUNTRY_KEY);
+    clearGateCookie();
   } catch (error) {
     console.error('Error clearing gate data:', error);
   }
@@ -160,6 +180,7 @@ export function saveGateData(data: {
     localStorage.setItem(GATE_NAME_KEY, data.name);
     localStorage.setItem(GATE_PHONE_KEY, data.phone);
     localStorage.setItem(GATE_COUNTRY_KEY, data.country || 'mz-pt');
+    setGateCookie();
   } catch (error) {
     console.error('Error saving gate data:', error);
   }

@@ -126,10 +126,16 @@ export async function POST(request: NextRequest) {
       console.error('[LEADS API] Error sending automated emails (lead was successfully saved):', emailError);
     }
     
-    return NextResponse.json(
+    const response = NextResponse.json(
       { success: true, leadId },
       { status: 201 }
     );
+    response.cookies.set('neolife_gate_verified', '1', {
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60,
+      sameSite: 'lax',
+    });
+    return response;
   } catch (error) {
     console.error('Error creating lead:', error);
     return NextResponse.json(
