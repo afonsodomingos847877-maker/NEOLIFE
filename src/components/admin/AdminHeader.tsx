@@ -33,6 +33,7 @@ export function AdminHeader({
   const menuItems = [
     { href: '/admin/dashboard', label: 'Dashboard' },
     { href: '/admin/leads', label: 'Leads' },
+    { href: '/admin/relatorios', label: 'Relatórios' },
     { href: '/admin/communication', label: 'Comunicação' },
     { href: '/admin/events', label: 'Eventos' },
     { href: '/admin/themes', label: 'Temas' },
